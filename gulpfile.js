@@ -54,6 +54,7 @@ var GENERIC_DIR = BUILD_DIR + "generic/";
 var GENERIC_ES5_DIR = BUILD_DIR + "generic-es5/";
 var COMPONENTS_DIR = BUILD_DIR + "components/";
 var COMPONENTS_ES5_DIR = BUILD_DIR + "components-es5/";
+var SZCOMPONENTS_DIR = BUILD_DIR + "szcomponents/";
 var IMAGE_DECODERS_DIR = BUILD_DIR + "image_decoders";
 var DEFAULT_PREFERENCES_DIR = BUILD_DIR + "default_preferences/";
 var MINIFIED_DIR = BUILD_DIR + "minified/";
@@ -358,6 +359,23 @@ function createComponentsBundle(defines) {
   });
   return gulp
     .src("./web/pdf_viewer.component.js")
+    .pipe(webpack2Stream(componentsFileConfig))
+    .pipe(replaceWebpackRequire())
+    .pipe(replaceJSRootName(componentsAMDName, "pdfjsViewer"));
+}
+
+function createSZComponentsBundle(defines) {
+  var componentsAMDName = "pdfjs-dist/web/pdf_viewer";
+  var componentsOutputName = "pdf_viewer.js";
+
+  var componentsFileConfig = createWebpackConfig(defines, {
+    filename: componentsOutputName,
+    library: componentsAMDName,
+    libraryTarget: "umd",
+    umdNamedDefine: true,
+  });
+  return gulp
+    .src("./web/pdf_viewer.szcomponent.js")
     .pipe(webpack2Stream(componentsFileConfig))
     .pipe(replaceWebpackRequire())
     .pipe(replaceJSRootName(componentsAMDName, "pdfjsViewer"));
@@ -809,6 +827,47 @@ gulp.task(
 
     return buildComponents(defines, COMPONENTS_ES5_DIR);
   })
+);
+
+function buildSZComponents(defines, dir) {
+  rimraf.sync(dir);
+  return merge([
+    createSZComponentsBundle(defines).pipe(gulp.dest(dir)),
+    preprocessCSS("web/pdf_viewer.css", "components", defines, true)
+      .pipe(
+        postcss([
+          cssvariables(CSS_VARIABLES_CONFIG),
+          calc(),
+          autoprefixer(AUTOPREFIXER_CONFIG),
+        ])
+      )
+      .pipe(gulp.dest(dir)),
+  ]);
+}
+
+gulp.task(
+  "sz-components",
+  gulp.series("buildnumber", function () {
+    console.log();
+    console.log("### Creating sz components");
+    var defines = builder.merge(DEFINES, { COMPONENTS: true, GENERIC: true });
+
+    return buildSZComponents(defines, SZCOMPONENTS_DIR);
+  })
+);
+
+gulp.task(
+  "sz-componentsminified",
+  function (done) {
+    console.log();
+    console.log("### Minified sz components");
+    var pdfFile = fs.readFileSync(SZCOMPONENTS_DIR + "/pdf_viewer.js")
+      .toString();
+    var Terser = require("terser");
+    fs.writeFileSync(SZCOMPONENTS_DIR + "/pdf_viewer.min.js", Terser.minify(
+      pdfFile).code);
+    done();
+  }
 );
 
 gulp.task(
@@ -1573,6 +1632,53 @@ gulp.task(
     "gh-pages-prepare",
     "wintersmith",
     "gh-pages-git"
+  )
+);
+
+gulp.task(
+  "szdist-pre",
+  gulp.series(
+    "sz-components",
+    "sz-componentsminified",
+    "minified",
+    function () {
+      var SZDIST_DIR = 'szbuild/dist/';
+      var SZDISTWEB_DIV = SZDIST_DIR + 'web/';
+      return merge([
+        gulp
+        .src(["web/locale/*/viewer.properties",
+          "web/locale/locale.properties"
+        ], {
+          base: "web/",
+        })
+        .pipe(gulp.dest(SZDISTWEB_DIV)),
+        gulp.src(["web/images/*.{png,svg,gif,cur}"]).pipe(gulp.dest(
+          SZDISTWEB_DIV +
+          "images")),
+        gulp
+        .src(["external/bcmaps/*.bcmap"], {
+          base: "external/bcmaps",
+        })
+        .pipe(gulp.dest(SZDIST_DIR + "cmaps")),
+        gulp
+        .src([SZCOMPONENTS_DIR + "/pdf_viewer.css",
+          SZCOMPONENTS_DIR + "/pdf_viewer.js",
+          SZCOMPONENTS_DIR + "/pdf_viewer.min.js",
+          SZCOMPONENTS_DIR + "/pdf_viewer.js.map"
+        ], {
+          base: SZCOMPONENTS_DIR,
+        })
+        .pipe(gulp.dest(SZDISTWEB_DIV)),
+        gulp
+        .src(MINIFIED_DIR + "build/pdf.js")
+        .pipe(rename("pdf.min.js"))
+        .pipe(gulp.dest(SZDIST_DIR + "build/")),
+        gulp
+        .src(MINIFIED_DIR + "build/pdf.worker.js")
+        .pipe(rename("pdf.worker.min.js"))
+        .pipe(gulp.dest(SZDIST_DIR + "build/")),
+      ]);
+    }
   )
 );
 

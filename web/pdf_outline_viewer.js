@@ -122,6 +122,10 @@ class PDFOutlineViewer {
         const shouldShowAll = !toggler.classList.contains("outlineItemsHidden");
         this._toggleOutlineItem(div, shouldShowAll);
       }
+      // huax 展开树形时，需要通知刷新滚动条
+      this.eventBus.dispatch("toggleoutlineitem", {
+        source: this
+      });
     };
     div.insertBefore(toggler, div.firstChild);
   }

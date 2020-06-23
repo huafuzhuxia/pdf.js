@@ -320,6 +320,8 @@ document.webL10n = (function(window, document, undefined) {
         callback();
       } else {
         console.log('no resource to load, early way out');
+        // huax 没有国际化文件应该也需要callback，否则后续代码无法执行
+        callback();
       }
       // early way out
       gReadyState = 'complete';

@@ -32,11 +32,12 @@ const defaultOptions = {
     value: 0,
     kind: OptionKind.VIEWER + OptionKind.PREFERENCE,
   },
-  defaultUrl: {
-    /** @type {string} */
-    value: "compressed.tracemonkey-pldi-09.pdf",
-    kind: OptionKind.VIEWER,
-  },
+  // huax 不需要默认文件
+  // defaultUrl: {
+  //   /** @type {string} */
+  //   value: "compressed.tracemonkey-pldi-09.pdf",
+  //   kind: OptionKind.VIEWER,
+  // },
   defaultZoomValue: {
     /** @type {string} */
     value: "",
@@ -96,11 +97,12 @@ const defaultOptions = {
     value: false,
     kind: OptionKind.VIEWER + OptionKind.PREFERENCE,
   },
-  imageResourcesPath: {
-    /** @type {string} */
-    value: "./images/",
-    kind: OptionKind.VIEWER,
-  },
+  // huax 请在require了pdf.js文件后自行配置相对路径。
+  // imageResourcesPath: {
+  //   /** @type {string} */
+  //   value: "./images/",
+  //   kind: OptionKind.VIEWER,
+  // },
   /**
    * The `locale` is, conditionally, defined below.
    */
@@ -166,14 +168,14 @@ const defaultOptions = {
     value: true,
     kind: OptionKind.API,
   },
-  cMapUrl: {
-    /** @type {string} */
-    value:
-      typeof PDFJSDev === "undefined" || !PDFJSDev.test("PRODUCTION")
-        ? "../external/bcmaps/"
-        : "../web/cmaps/",
-    kind: OptionKind.API,
-  },
+  // cMapUrl: {
+  //   /** @type {string} */
+  //   value:
+  //     typeof PDFJSDev === "undefined" || !PDFJSDev.test("PRODUCTION")
+  //       ? "../external/bcmaps/"
+  //       : "../web/cmaps/",
+  //   kind: OptionKind.API,
+  // },
   disableAutoFetch: {
     /** @type {boolean} */
     value: false,
@@ -230,14 +232,14 @@ const defaultOptions = {
     value: null,
     kind: OptionKind.WORKER,
   },
-  workerSrc: {
-    /** @type {string} */
-    value:
-      typeof PDFJSDev === "undefined" || !PDFJSDev.test("PRODUCTION")
-        ? "../src/worker_loader.js"
-        : "../build/pdf.worker.js",
-    kind: OptionKind.WORKER,
-  },
+  // workerSrc: {
+  //   /** @type {string} */
+  //   value:
+  //     typeof PDFJSDev === "undefined" || !PDFJSDev.test("PRODUCTION")
+  //       ? "../src/worker_loader.js"
+  //       : "../build/pdf.worker.js",
+  //   kind: OptionKind.WORKER,
+  // },
 };
 if (
   typeof PDFJSDev === "undefined" ||

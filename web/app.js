@@ -652,11 +652,12 @@ const PDFViewerApplication = {
   },
 
   setTitle(title) {
-    if (this.isViewerEmbedded) {
-      // Embedded PDF viewers should not be changing their parent page's title.
-      return;
-    }
-    document.title = title;
+    // huax 不需要修改title
+    // if (this.isViewerEmbedded) {
+    //   // Embedded PDF viewers should not be changing their parent page's title.
+    //   return;
+    // }
+    // document.title = title;
   },
 
   /**
@@ -1899,7 +1900,8 @@ function webViewerInitialized() {
     fileInput.className = "fileInput";
     fileInput.setAttribute("type", "file");
     fileInput.oncontextmenu = noContextMenuHandler;
-    document.body.appendChild(fileInput);
+    // huax 增加的dom需要避免影响页面效果，将其插入到当前查看器dom下
+    PDFViewerApplication.appConfig.appContainer.appendChild(fileInput);
 
     if (
       !window.File ||
@@ -2156,31 +2158,32 @@ function webViewerPresentationModeChanged({ active, switchInProgress }) {
 function webViewerSidebarViewChanged(evt) {
   PDFViewerApplication.pdfRenderingQueue.isThumbnailViewEnabled =
     PDFViewerApplication.pdfSidebar.isThumbnailViewVisible;
-
-  const store = PDFViewerApplication.store;
-  if (store && PDFViewerApplication.isInitialViewSet) {
-    // Only update the storage when the document has been loaded *and* rendered.
-    store.set("sidebarView", evt.view).catch(function () {});
-  }
+  // huax 不需要缓存状态的功能
+  // const store = PDFViewerApplication.store;
+  // if (store && PDFViewerApplication.isInitialViewSet) {
+  //   // Only update the storage when the document has been loaded *and* rendered.
+  //   store.set("sidebarView", evt.view).catch(function () {});
+  // }
 }
 
 function webViewerUpdateViewarea(evt) {
   const location = evt.location,
     store = PDFViewerApplication.store;
 
-  if (store && PDFViewerApplication.isInitialViewSet) {
-    store
-      .setMultiple({
-        page: location.pageNumber,
-        zoom: location.scale,
-        scrollLeft: location.left,
-        scrollTop: location.top,
-        rotation: location.rotation,
-      })
-      .catch(function () {
-        /* unable to write to storage */
-      });
-  }
+  // huax 不需要缓存状态的功能
+  // if (store && PDFViewerApplication.isInitialViewSet) {
+  //   store
+  //     .setMultiple({
+  //       page: location.pageNumber,
+  //       zoom: location.scale,
+  //       scrollLeft: location.left,
+  //       scrollTop: location.top,
+  //       rotation: location.rotation,
+  //     })
+  //     .catch(function () {
+  //       /* unable to write to storage */
+  //     });
+  // }
   const href = PDFViewerApplication.pdfLinkService.getAnchorUrl(
     location.pdfOpenParams
   );
@@ -2196,19 +2199,21 @@ function webViewerUpdateViewarea(evt) {
 }
 
 function webViewerScrollModeChanged(evt) {
-  const store = PDFViewerApplication.store;
-  if (store && PDFViewerApplication.isInitialViewSet) {
-    // Only update the storage when the document has been loaded *and* rendered.
-    store.set("scrollMode", evt.mode).catch(function () {});
-  }
+  // huax 不需要缓存状态的功能
+  // const store = PDFViewerApplication.store;
+  // if (store && PDFViewerApplication.isInitialViewSet) {
+  //   // Only update the storage when the document has been loaded *and* rendered.
+  //   store.set("scrollMode", evt.mode).catch(function () {});
+  // }
 }
 
 function webViewerSpreadModeChanged(evt) {
-  const store = PDFViewerApplication.store;
-  if (store && PDFViewerApplication.isInitialViewSet) {
-    // Only update the storage when the document has been loaded *and* rendered.
-    store.set("spreadMode", evt.mode).catch(function () {});
-  }
+  // huax 不需要缓存状态的功能
+  // const store = PDFViewerApplication.store;
+  // if (store && PDFViewerApplication.isInitialViewSet) {
+  //   // Only update the storage when the document has been loaded *and* rendered.
+  //   store.set("spreadMode", evt.mode).catch(function () {});
+  // }
 }
 
 function webViewerResize() {
@@ -2229,15 +2234,16 @@ function webViewerResize() {
 }
 
 function webViewerHashchange(evt) {
-  const hash = evt.hash;
-  if (!hash) {
-    return;
-  }
-  if (!PDFViewerApplication.isInitialViewSet) {
-    PDFViewerApplication.initialBookmark = hash;
-  } else if (!PDFViewerApplication.pdfHistory.popStateInProgress) {
-    PDFViewerApplication.pdfLinkService.setHash(hash);
-  }
+  // huax 不需要记忆功能
+  // const hash = evt.hash;
+  // if (!hash) {
+  //   return;
+  // }
+  // if (!PDFViewerApplication.isInitialViewSet) {
+  //   PDFViewerApplication.initialBookmark = hash;
+  // } else if (!PDFViewerApplication.pdfHistory.popStateInProgress) {
+  //   PDFViewerApplication.pdfLinkService.setHash(hash);
+  // }
 }
 
 let webViewerFileInputChange, webViewerOpenFile;
